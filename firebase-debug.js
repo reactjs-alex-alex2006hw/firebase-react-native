@@ -1,31 +1,40 @@
 /*! @license Firebase v2.2.4
     License: https://www.firebase.com/terms/terms-of-service.html */
 var CLOSURE_NO_DEPS = true;
-var COMPILED = false;
+var COMPILED = true;
 var goog = goog || {};
+var fb = fb || {}; /* react-native-hack: needed because of how exportPath is initially invoked */
 goog.global = this;
 goog.global.CLOSURE_UNCOMPILED_DEFINES;
 goog.global.CLOSURE_DEFINES;
 goog.isDef = function(val) {
   return val !== void 0;
 };
+/* react-native-hack: execScript didn't work in JSC */
 goog.exportPath_ = function(name, opt_object, opt_objectToExportTo) {
   var parts = name.split(".");
-  var cur = opt_objectToExportTo || goog.global;
-  if (!(parts[0] in cur) && cur.execScript) {
-    cur.execScript("var " + parts[0]);
+  var cur = parts[0] === "goog" ? goog : fb;
+  for (var i = 1; i < parts.length; i++) {
+    if (!cur[parts[i]])
+      cur[parts[i]] = {};
+    cur = cur[parts[i]];
   }
-  for (var part;parts.length && (part = parts.shift());) {
-    if (!parts.length && goog.isDef(opt_object)) {
-      cur[part] = opt_object;
-    } else {
-      if (cur[part]) {
-        cur = cur[part];
-      } else {
-        cur = cur[part] = {};
-      }
-    }
-  }
+
+  // var cur = opt_objectToExportTo || goog.global;
+  // if (!(parts[0] in cur) && cur.execScript) {
+  //   cur.execScript("var " + parts[0]);
+  // }
+  // for (var part;parts.length && (part = parts.shift());) {
+  //   if (!parts.length && goog.isDef(opt_object)) {
+  //     cur[part] = opt_object;
+  //   } else {
+  //     if (cur[part]) {
+  //       cur = cur[part];
+  //     } else {
+  //       cur = cur[part] = {};
+  //     }
+  //   }
+  // }
 };
 goog.define = function(name, defaultValue) {
   var value = defaultValue;
@@ -735,6 +744,8 @@ goog.exportProperty = function(object, publicName, symbol) {
 goog.inherits = function(childCtor, parentCtor) {
   function tempCtor() {
   }
+  if (!parentCtor)
+    return;
   tempCtor.prototype = parentCtor.prototype;
   childCtor.superClass_ = parentCtor.prototype;
   childCtor.prototype = new tempCtor;
@@ -2948,102 +2959,105 @@ goog.define("goog.userAgent.ASSUME_MOBILE_WEBKIT", false);
 goog.define("goog.userAgent.ASSUME_OPERA", false);
 goog.define("goog.userAgent.ASSUME_ANY_VERSION", false);
 goog.userAgent.BROWSER_KNOWN_ = goog.userAgent.ASSUME_IE || goog.userAgent.ASSUME_GECKO || goog.userAgent.ASSUME_MOBILE_WEBKIT || goog.userAgent.ASSUME_WEBKIT || goog.userAgent.ASSUME_OPERA;
-goog.userAgent.getUserAgentString = function() {
-  return goog.labs.userAgent.util.getUserAgent();
-};
-goog.userAgent.getNavigator = function() {
-  return goog.global["navigator"] || null;
-};
-goog.userAgent.OPERA = goog.userAgent.BROWSER_KNOWN_ ? goog.userAgent.ASSUME_OPERA : goog.labs.userAgent.browser.isOpera();
-goog.userAgent.IE = goog.userAgent.BROWSER_KNOWN_ ? goog.userAgent.ASSUME_IE : goog.labs.userAgent.browser.isIE();
-goog.userAgent.GECKO = goog.userAgent.BROWSER_KNOWN_ ? goog.userAgent.ASSUME_GECKO : goog.labs.userAgent.engine.isGecko();
-goog.userAgent.WEBKIT = goog.userAgent.BROWSER_KNOWN_ ? goog.userAgent.ASSUME_WEBKIT || goog.userAgent.ASSUME_MOBILE_WEBKIT : goog.labs.userAgent.engine.isWebKit();
-goog.userAgent.isMobile_ = function() {
-  return goog.userAgent.WEBKIT && goog.labs.userAgent.util.matchUserAgent("Mobile");
-};
-goog.userAgent.MOBILE = goog.userAgent.ASSUME_MOBILE_WEBKIT || goog.userAgent.isMobile_();
-goog.userAgent.SAFARI = goog.userAgent.WEBKIT;
-goog.userAgent.determinePlatform_ = function() {
-  var navigator = goog.userAgent.getNavigator();
-  return navigator && navigator.platform || "";
-};
-goog.userAgent.PLATFORM = goog.userAgent.determinePlatform_();
-goog.define("goog.userAgent.ASSUME_MAC", false);
-goog.define("goog.userAgent.ASSUME_WINDOWS", false);
-goog.define("goog.userAgent.ASSUME_LINUX", false);
-goog.define("goog.userAgent.ASSUME_X11", false);
-goog.define("goog.userAgent.ASSUME_ANDROID", false);
-goog.define("goog.userAgent.ASSUME_IPHONE", false);
-goog.define("goog.userAgent.ASSUME_IPAD", false);
-goog.userAgent.PLATFORM_KNOWN_ = goog.userAgent.ASSUME_MAC || goog.userAgent.ASSUME_WINDOWS || goog.userAgent.ASSUME_LINUX || goog.userAgent.ASSUME_X11 || goog.userAgent.ASSUME_ANDROID || goog.userAgent.ASSUME_IPHONE || goog.userAgent.ASSUME_IPAD;
-goog.userAgent.MAC = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_MAC : goog.labs.userAgent.platform.isMacintosh();
-goog.userAgent.WINDOWS = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_WINDOWS : goog.labs.userAgent.platform.isWindows();
-goog.userAgent.isLegacyLinux_ = function() {
-  return goog.labs.userAgent.platform.isLinux() || goog.labs.userAgent.platform.isChromeOS();
-};
-goog.userAgent.LINUX = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_LINUX : goog.userAgent.isLegacyLinux_();
-goog.userAgent.isX11_ = function() {
-  var navigator = goog.userAgent.getNavigator();
-  return!!navigator && goog.string.contains(navigator["appVersion"] || "", "X11");
-};
-goog.userAgent.X11 = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_X11 : goog.userAgent.isX11_();
-goog.userAgent.ANDROID = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_ANDROID : goog.labs.userAgent.platform.isAndroid();
-goog.userAgent.IPHONE = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPHONE : goog.labs.userAgent.platform.isIphone();
-goog.userAgent.IPAD = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPAD : goog.labs.userAgent.platform.isIpad();
-goog.userAgent.determineVersion_ = function() {
-  var version = "", re;
-  if (goog.userAgent.OPERA && goog.global["opera"]) {
-    var operaVersion = goog.global["opera"].version;
-    return goog.isFunction(operaVersion) ? operaVersion() : operaVersion;
-  }
-  if (goog.userAgent.GECKO) {
-    re = /rv\:([^\);]+)(\)|;)/;
-  } else {
-    if (goog.userAgent.IE) {
-      re = /\b(?:MSIE|rv)[: ]([^\);]+)(\)|;)/;
-    } else {
-      if (goog.userAgent.WEBKIT) {
-        re = /WebKit\/(\S+)/;
-      }
-    }
-  }
-  if (re) {
-    var arr = re.exec(goog.userAgent.getUserAgentString());
-    version = arr ? arr[1] : "";
-  }
-  if (goog.userAgent.IE) {
-    var docMode = goog.userAgent.getDocumentMode_();
-    if (docMode > parseFloat(version)) {
-      return String(docMode);
-    }
-  }
-  return version;
-};
-goog.userAgent.getDocumentMode_ = function() {
-  var doc = goog.global["document"];
-  return doc ? doc["documentMode"] : undefined;
-};
-goog.userAgent.VERSION = goog.userAgent.determineVersion_();
-goog.userAgent.compare = function(v1, v2) {
-  return goog.string.compareVersions(v1, v2);
-};
-goog.userAgent.isVersionOrHigherCache_ = {};
-goog.userAgent.isVersionOrHigher = function(version) {
-  return goog.userAgent.ASSUME_ANY_VERSION || goog.userAgent.isVersionOrHigherCache_[version] || (goog.userAgent.isVersionOrHigherCache_[version] = goog.string.compareVersions(goog.userAgent.VERSION, version) >= 0);
-};
-goog.userAgent.isVersion = goog.userAgent.isVersionOrHigher;
-goog.userAgent.isDocumentModeOrHigher = function(documentMode) {
-  return goog.userAgent.IE && goog.userAgent.DOCUMENT_MODE >= documentMode;
-};
-goog.userAgent.isDocumentMode = goog.userAgent.isDocumentModeOrHigher;
-goog.userAgent.DOCUMENT_MODE = function() {
-  var doc = goog.global["document"];
-  if (!doc || !goog.userAgent.IE) {
-    return undefined;
-  }
-  var mode = goog.userAgent.getDocumentMode_();
-  return mode || (doc["compatMode"] == "CSS1Compat" ? parseInt(goog.userAgent.VERSION, 10) : 5);
-}();
+
+
+/* react-native-hack: userAgent stuff isnt there in JSC */
+// goog.userAgent.getUserAgentString = function() {
+//   return goog.labs.userAgent.util.getUserAgent();
+// };
+// goog.userAgent.getNavigator = function() {
+//   return goog.global["navigator"] || null;
+// };
+// goog.userAgent.OPERA = goog.userAgent.BROWSER_KNOWN_ ? goog.userAgent.ASSUME_OPERA : goog.labs.userAgent.browser.isOpera();
+// goog.userAgent.IE = goog.userAgent.BROWSER_KNOWN_ ? goog.userAgent.ASSUME_IE : goog.labs.userAgent.browser.isIE();
+// goog.userAgent.GECKO = goog.userAgent.BROWSER_KNOWN_ ? goog.userAgent.ASSUME_GECKO : goog.labs.userAgent.engine.isGecko();
+// goog.userAgent.WEBKIT = goog.userAgent.BROWSER_KNOWN_ ? goog.userAgent.ASSUME_WEBKIT || goog.userAgent.ASSUME_MOBILE_WEBKIT : goog.labs.userAgent.engine.isWebKit();
+// goog.userAgent.isMobile_ = function() {
+//   return goog.userAgent.WEBKIT && goog.labs.userAgent.util.matchUserAgent("Mobile");
+// };
+// goog.userAgent.MOBILE = goog.userAgent.ASSUME_MOBILE_WEBKIT || goog.userAgent.isMobile_();
+// goog.userAgent.SAFARI = goog.userAgent.WEBKIT;
+// goog.userAgent.determinePlatform_ = function() {
+//   var navigator = goog.userAgent.getNavigator();
+//   return navigator && navigator.platform || "";
+// };
+// goog.userAgent.PLATFORM = goog.userAgent.determinePlatform_();
+// goog.define("goog.userAgent.ASSUME_MAC", false);
+// goog.define("goog.userAgent.ASSUME_WINDOWS", false);
+// goog.define("goog.userAgent.ASSUME_LINUX", false);
+// goog.define("goog.userAgent.ASSUME_X11", false);
+// goog.define("goog.userAgent.ASSUME_ANDROID", false);
+// goog.define("goog.userAgent.ASSUME_IPHONE", false);
+// goog.define("goog.userAgent.ASSUME_IPAD", false);
+// goog.userAgent.PLATFORM_KNOWN_ = goog.userAgent.ASSUME_MAC || goog.userAgent.ASSUME_WINDOWS || goog.userAgent.ASSUME_LINUX || goog.userAgent.ASSUME_X11 || goog.userAgent.ASSUME_ANDROID || goog.userAgent.ASSUME_IPHONE || goog.userAgent.ASSUME_IPAD;
+// goog.userAgent.MAC = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_MAC : goog.labs.userAgent.platform.isMacintosh();
+// goog.userAgent.WINDOWS = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_WINDOWS : goog.labs.userAgent.platform.isWindows();
+// goog.userAgent.isLegacyLinux_ = function() {
+//   return goog.labs.userAgent.platform.isLinux() || goog.labs.userAgent.platform.isChromeOS();
+// };
+// goog.userAgent.LINUX = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_LINUX : goog.userAgent.isLegacyLinux_();
+// goog.userAgent.isX11_ = function() {
+//   var navigator = goog.userAgent.getNavigator();
+//   return!!navigator && goog.string.contains(navigator["appVersion"] || "", "X11");
+// };
+// goog.userAgent.X11 = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_X11 : goog.userAgent.isX11_();
+// goog.userAgent.ANDROID = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_ANDROID : goog.labs.userAgent.platform.isAndroid();
+// goog.userAgent.IPHONE = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPHONE : goog.labs.userAgent.platform.isIphone();
+// goog.userAgent.IPAD = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPAD : goog.labs.userAgent.platform.isIpad();
+// goog.userAgent.determineVersion_ = function() {
+//   var version = "", re;
+//   if (goog.userAgent.OPERA && goog.global["opera"]) {
+//     var operaVersion = goog.global["opera"].version;
+//     return goog.isFunction(operaVersion) ? operaVersion() : operaVersion;
+//   }
+//   if (goog.userAgent.GECKO) {
+//     re = /rv\:([^\);]+)(\)|;)/;
+//   } else {
+//     if (goog.userAgent.IE) {
+//       re = /\b(?:MSIE|rv)[: ]([^\);]+)(\)|;)/;
+//     } else {
+//       if (goog.userAgent.WEBKIT) {
+//         re = /WebKit\/(\S+)/;
+//       }
+//     }
+//   }
+//   if (re) {
+//     var arr = re.exec(goog.userAgent.getUserAgentString());
+//     version = arr ? arr[1] : "";
+//   }
+//   if (goog.userAgent.IE) {
+//     var docMode = goog.userAgent.getDocumentMode_();
+//     if (docMode > parseFloat(version)) {
+//       return String(docMode);
+//     }
+//   }
+//   return version;
+// };
+// goog.userAgent.getDocumentMode_ = function() {
+//   var doc = goog.global["document"];
+//   return doc ? doc["documentMode"] : undefined;
+// };
+// goog.userAgent.VERSION = goog.userAgent.determineVersion_();
+// goog.userAgent.compare = function(v1, v2) {
+//   return goog.string.compareVersions(v1, v2);
+// };
+// goog.userAgent.isVersionOrHigherCache_ = {};
+// goog.userAgent.isVersionOrHigher = function(version) {
+//   return goog.userAgent.ASSUME_ANY_VERSION || goog.userAgent.isVersionOrHigherCache_[version] || (goog.userAgent.isVersionOrHigherCache_[version] = goog.string.compareVersions(goog.userAgent.VERSION, version) >= 0);
+// };
+// goog.userAgent.isVersion = goog.userAgent.isVersionOrHigher;
+// goog.userAgent.isDocumentModeOrHigher = function(documentMode) {
+//   return goog.userAgent.IE && goog.userAgent.DOCUMENT_MODE >= documentMode;
+// };
+// goog.userAgent.isDocumentMode = goog.userAgent.isDocumentModeOrHigher;
+// goog.userAgent.DOCUMENT_MODE = function() {
+//   var doc = goog.global["document"];
+//   if (!doc || !goog.userAgent.IE) {
+//     return undefined;
+//   }
+//   var mode = goog.userAgent.getDocumentMode_();
+//   return mode || (doc["compatMode"] == "CSS1Compat" ? parseInt(goog.userAgent.VERSION, 10) : 5);
+// }();
 goog.provide("goog.crypt.base64");
 goog.require("goog.crypt");
 goog.require("goog.userAgent");
@@ -3144,7 +3158,9 @@ goog.crypt.base64.init_ = function() {
   }
 };
 goog.provide("fb.constants");
-var NODE_CLIENT = false;
+
+/* react-native-hack: NODE_CLIENT true allows us to use codepaths more react-native-friendly, but in *most* scenarios */
+var NODE_CLIENT = true;
 var CLIENT_VERSION = "0.0.0";
 goog.provide("fb.util.obj");
 fb.util.obj.contains = function(obj, key) {
@@ -4005,7 +4021,8 @@ fb.LLRBEmptyNode = goog.defineClass(null, {constructor:function() {
 fb.core.util.SortedMap.EMPTY_NODE_ = new fb.LLRBEmptyNode;
 goog.provide("fb.core.util.NodePatches");
 (function() {
-  if (NODE_CLIENT) {
+  /* react-native-hack: used to be if(NODE_CLIENT), but in this case we never want to
+  if (false) {
     var version = process["version"];
     if (version === "v0.10.22" || version === "v0.10.23" || version === "v0.10.24") {
       var Writable = require("_stream_writable");
@@ -4490,7 +4507,6 @@ fb.core.util.log = function(var_args) {
   if (fb.core.util.firstLog_ === true) {
     fb.core.util.firstLog_ = false;
     if (fb.core.util.logger === null && fb.core.storage.SessionStorage.get("logging_enabled") === true) {
-      Firebase.enableLogging(true);
     }
   }
   if (fb.core.util.logger) {
@@ -8860,7 +8876,6 @@ fb.core.SparseSnapshotTree.prototype.forEachChild = function(func) {
   }
 };
 goog.provide("fb.login.Constants");
-fb.login.Constants = {SESSION_PERSISTENCE_KEY_PREFIX:"session", DEFAULT_SERVER_HOST:"auth.firebase.com", SERVER_HOST:"auth.firebase.com", API_VERSION:"v2", POPUP_PATH_TO_CHANNEL:"/auth/channel", POPUP_RELAY_FRAME_NAME:"__winchan_relay_frame", POPUP_CLOSE_CMD:"die", JSONP_CALLBACK_NAMESPACE:"__firebase_auth_jsonp", REDIR_REQUEST_ID_KEY:"redirect_request_id", REDIR_REQUEST_COMPLETION_KEY:"__firebase_request_key", REDIR_CLIENT_OPTIONS_KEY:"redirect_client_options", INTERNAL_REDIRECT_SENTINAL_PATH:"/blank/page.html", 
 CLIENT_OPTION_SESSION_PERSISTENCE:"remember", CLIENT_OPTION_REDIRECT_TO:"redirectTo"};
 goog.provide("fb.login.RequestInfo");
 goog.require("fb.login.Constants");
@@ -10375,8 +10390,6 @@ var WEBSOCKET_MAX_FRAME_SIZE = 16384;
 var WEBSOCKET_KEEPALIVE_INTERVAL = 45E3;
 fb.WebSocket = null;
 if (NODE_CLIENT) {
-  goog.require("fb.core.util.NodePatches");
-  fb.WebSocket = require("faye-websocket")["Client"];
 } else {
   if (typeof MozWebSocket !== "undefined") {
     fb.WebSocket = MozWebSocket;
@@ -10413,7 +10426,6 @@ fb.realtime.WebSocketConnection.prototype.open = function(onMess, onDisconn) {
   this.everConnected_ = false;
   fb.core.storage.PersistentStorage.set("previous_websocket_failure", true);
   try {
-    if (NODE_CLIENT) {
       var options = {"headers":{"User-Agent":"Firebase/" + fb.realtime.Constants.PROTOCOL_VERSION + "/" + CLIENT_VERSION + "/" + process.platform + "/Node"}};
       this.mySock = new fb.WebSocket(this.connURL, [], options);
     } else {
@@ -13047,4 +13059,3 @@ Firebase.Context = fb.core.RepoManager;
 Firebase.TEST_ACCESS = fb.api.TEST_ACCESS;
 
 Firebase.SDK_VERSION = '2.2.4';
-
