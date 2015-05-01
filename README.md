@@ -15,6 +15,9 @@ As mentioned above, this is super hacky and barely tested.  Don't try to use thi
 
 `npm install --save firebase-react-native`
 
+Then start using it in your code:
+`var Firebase    = require('firebase-react-native');`
+
 You also need to import the websocket polyfill into your react-native project.  Below are instructions I use, but there may be easier paths with less steps:
 
 - clone the fork of react-native with websocket polyfill https://github.com/hharnisc/react-native
