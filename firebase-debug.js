@@ -4022,6 +4022,7 @@ fb.core.util.SortedMap.EMPTY_NODE_ = new fb.LLRBEmptyNode;
 goog.provide("fb.core.util.NodePatches");
 (function() {
   /* react-native-hack: used to be if(NODE_CLIENT), but in this case we never want to
+     head down this codepath because the node dependencies arent availabile */
   if (false) {
     var version = process["version"];
     if (version === "v0.10.22" || version === "v0.10.23" || version === "v0.10.24") {
@@ -4506,8 +4507,11 @@ fb.core.util.firstLog_ = true;
 fb.core.util.log = function(var_args) {
   if (fb.core.util.firstLog_ === true) {
     fb.core.util.firstLog_ = false;
-    if (fb.core.util.logger === null && fb.core.storage.SessionStorage.get("logging_enabled") === true) {
-    }
+    /* react-native-hack: messed with this to enable logging; there is probably a better way */
+    Firebase.enableLogging(true);
+    // if (fb.core.util.logger === null && fb.core.storage.SessionStorage.get("logging_enabled") === true) {
+    //
+    // }
   }
   if (fb.core.util.logger) {
     var message = fb.core.util.buildLogMessage_.apply(null, arguments);
@@ -8876,6 +8880,7 @@ fb.core.SparseSnapshotTree.prototype.forEachChild = function(func) {
   }
 };
 goog.provide("fb.login.Constants");
+fb.login.Constants = {SESSION_PERSISTENCE_KEY_PREFIX:"session", DEFAULT_SERVER_HOST:"auth.firebase.com", SERVER_HOST:"auth.firebase.com", API_VERSION:"v2", POPUP_PATH_TO_CHANNEL:"/auth/channel", POPUP_RELAY_FRAME_NAME:"__winchan_relay_frame", POPUP_CLOSE_CMD:"die", JSONP_CALLBACK_NAMESPACE:"__firebase_auth_jsonp", REDIR_REQUEST_ID_KEY:"redirect_request_id", REDIR_REQUEST_COMPLETION_KEY:"__firebase_request_key", REDIR_CLIENT_OPTIONS_KEY:"redirect_client_options", INTERNAL_REDIRECT_SENTINAL_PATH:"/blank/page.html",
 CLIENT_OPTION_SESSION_PERSISTENCE:"remember", CLIENT_OPTION_REDIRECT_TO:"redirectTo"};
 goog.provide("fb.login.RequestInfo");
 goog.require("fb.login.Constants");
@@ -10390,6 +10395,12 @@ var WEBSOCKET_MAX_FRAME_SIZE = 16384;
 var WEBSOCKET_KEEPALIVE_INTERVAL = 45E3;
 fb.WebSocket = null;
 if (NODE_CLIENT) {
+  /* react-native-hack: more node stuff that doesn't apply or not available */
+  // goog.require("fb.core.util.NodePatches");
+  // fb.WebSocket = require("faye-websocket")["Client"];
+  if (typeof WebSocket !== "undefined") {
+    fb.WebSocket = WebSocket;
+  }
 } else {
   if (typeof MozWebSocket !== "undefined") {
     fb.WebSocket = MozWebSocket;
@@ -10426,6 +10437,8 @@ fb.realtime.WebSocketConnection.prototype.open = function(onMess, onDisconn) {
   this.everConnected_ = false;
   fb.core.storage.PersistentStorage.set("previous_websocket_failure", true);
   try {
+    /* react-native-hack: used to be if(NODE_CLIENT) not sure if this codepath is safe; forgot why I'm bypassing it */
+    if (false) {
       var options = {"headers":{"User-Agent":"Firebase/" + fb.realtime.Constants.PROTOCOL_VERSION + "/" + CLIENT_VERSION + "/" + process.platform + "/Node"}};
       this.mySock = new fb.WebSocket(this.connURL, [], options);
     } else {
@@ -11312,7 +11325,9 @@ fb.core.PersistentConnection.prototype.scheduleConnect_ = function(timeout) {
   this.establishConnectionTimer_ = setTimeout(function() {
     self.establishConnectionTimer_ = null;
     self.establishConnection_();
-  }, Math.floor(timeout));
+    /* react-native-hack as of react-native v0.4.1, their JSTimers implementation doesn't respect
+       0 with setTimeout like v0.4.0.  Ensuring >0 makes everything work as expected. */
+  }, Math.floor(timeout+1));
 };
 fb.core.PersistentConnection.prototype.onVisible_ = function(visible) {
   if (visible && !this.visible_ && this.reconnectDelay_ === this.maxReconnectDelay_) {
