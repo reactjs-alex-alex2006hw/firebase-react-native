@@ -1,0 +1,24 @@
+{
+  "name": "firebase-react-native",
+  "version": "0.0.1",
+  "description": "firebase client api hacked to get working with react-native",
+  "main": "firebase-debug.js",
+  "browser": "firebase-debug.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjmueller/firebase-react-native"
+  },
+  "keywords": [
+    "firebase",
+    "react-native"
+  ],
+  "author": "Sam Mueller",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sjmueller/firebase-react-native/issues"
+  },
+  "homepage": "https://github.com/sjmueller/firebase-react-native"
+}
