@@ -1,6 +1,6 @@
 {
   "name": "firebase-react-native",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "firebase client api hacked to get working with react-native",
   "main": "firebase-debug.js",
   "browser": "firebase-debug.js",
