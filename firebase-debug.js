@@ -9448,7 +9448,7 @@ fb.login.transports.XHR.prototype.open = function(url, params, cb) {
   xhr.send(payload);
 };
 fb.login.transports.XHR["isAvailable"] = function() {
-  return!NODE_CLIENT && !!window["XMLHttpRequest"] && typeof(new XMLHttpRequest).responseType === "string" && (!fb.login.util.environment.isIE() || fb.login.util.environment.isModernIE());
+  return true;
 };
 fb.login.transports.XHR.prototype.classification = function() {
   return "json";
@@ -9746,7 +9746,7 @@ fb.login.AuthenticationManager.prototype.authWithCredential = function(provider,
   this.checkServerSettingsOrThrow();
   var requestInfo = new fb.login.RequestInfo(opt_options || {}, {}, opt_params || {});
   var transports;
-  if (NODE_CLIENT) {
+  if (false) {
     transports = [fb.login.transports.NodeHttp];
   } else {
     transports = [fb.login.transports.XHR, fb.login.transports.JSONP];
@@ -9851,7 +9851,7 @@ fb.login.AuthenticationManager.prototype.resetPassword = function(params, opt_on
 };
 fb.login.AuthenticationManager.prototype.requestWithCredential = function(path, requestInfo, opt_onComplete) {
   var transports;
-  if (NODE_CLIENT) {
+  if (false) {
     transports = [fb.login.transports.NodeHttp];
   } else {
     transports = [fb.login.transports.XHR, fb.login.transports.JSONP];
