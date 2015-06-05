@@ -4834,9 +4834,9 @@ fb.core.util.callUserCallback = function(opt_callback, var_args) {
   if (goog.isFunction(opt_callback)) {
     var args = Array.prototype.slice.call(arguments, 1);
     var newArgs = args.slice();
-    fb.core.util.exceptionGuard(function() {
+    //fb.core.util.exceptionGuard(function() {
       opt_callback.apply(null, newArgs);
-    });
+    //});
   }
 };
 fb.core.util.beingCrawled = function() {
