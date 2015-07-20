@@ -1,5 +1,11 @@
 # firebase-react-native
 
+## This library is now deprecated!
+
+As of v2.2.7, firebase now has great support for react-native. I highly recommend using the official library instead: `npm i firebase --save`
+
+#### Instructions
+
 Currently, the firebase client api doesn't support react native.  There are few reasons:
 
 - JSC doesn't include WebSockets, so it has to be polyfilled
@@ -7,11 +13,11 @@ Currently, the firebase client api doesn't support react native.  There are few 
 - firebase.js expects to be run inside of a browser or node, and neither are quite the same as running javascript with react-native
 
 So, I essentially hacked the latest version of firebase-debug.js to death, and now it works with react native when used in conjunction with [Harrison Harnish's excellent websocket polyfill](https://github.com/hharnisc/react-native).  
-# Disclaimer
+#### Disclaimer
 As mentioned above, this is super hacky and barely tested.  Don't try to use this in production.  Eventually firebase and react-native will play nice together and this repo will become obsolete.  But for now, you're able to mash the two together and have some fun.
 
 
-# Usage
+#### Usage
 
 `npm install --save firebase-react-native`
 
